@@ -1,0 +1,245 @@
+{
+  "entities": {
+    "UserAccount": {
+      "title": "UserAccount",
+      "description": "Private user account profile containing PII such as linked phone number, strictly readable and writable only by the authenticated owner.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of the owner." },
+        "displayName": { "type": "string", "description": "User profile display name (1-60 chars)." },
+        "username": { "type": "string", "description": "Unique lowercase username handle (3-24 chars)." },
+        "phoneNumber": { "type": "string", "description": "Optional linked phone number in normalized format (0-20 chars)." },
+        "about": { "type": "string", "description": "Optional user bio/status text (0-160 chars)." },
+        "avatarData": { "type": "string", "description": "Optional profile image HTTPS URL or compressed Base64 data URI." },
+        "online": { "type": "boolean", "description": "Whether the user is currently active in the app." },
+        "lastSeenAt": { "type": "string", "format": "date-time", "description": "Last active server timestamp (FieldValue.serverTimestamp())." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation server timestamp (FieldValue.serverTimestamp())." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update server timestamp (FieldValue.serverTimestamp())." }
+      },
+      "required": ["userId", "displayName", "username", "online", "lastSeenAt", "createdAt", "updatedAt"]
+    },
+    "PublicProfile": {
+      "title": "PublicProfile",
+      "description": "Non-PII public chat profile keyed by UID for live presence, online status, and avatar rendering in chats.",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string", "description": "Firebase Auth UID of the profile owner." },
+        "displayName": { "type": "string", "description": "Public display name (1-60 chars)." },
+        "username": { "type": "string", "description": "Public lowercase handle (3-24 chars)." },
+        "about": { "type": "string", "description": "Optional public status line (0-160 chars)." },
+        "avatarData": { "type": "string", "description": "Optional avatar URL or Base64 data URI." },
+        "online": { "type": "boolean", "description": "Live online status indicator." },
+        "lastSeenAt": { "type": "string", "format": "date-time", "description": "Last seen server timestamp." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update server timestamp." }
+      },
+      "required": ["ownerUid", "displayName", "username", "online", "lastSeenAt", "createdAt", "updatedAt"]
+    },
+    "DirectoryEntry": {
+      "title": "DirectoryEntry",
+      "description": "Non-PII lookup index entry keyed by deterministic username key (u_<handle>) or SHA-256 hashed phone key (p_<hash>) for O(1) registered contact verification without exposing raw PII or allowing collection listing.",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string", "description": "Registered user UID." },
+        "lookupType": { "type": "string", "enum": ["username", "phone"], "description": "Whether this entry maps a username or hashed phone." },
+        "displayName": { "type": "string", "description": "Registered user's display name." },
+        "username": { "type": "string", "description": "Registered user's username." },
+        "avatarData": { "type": "string", "description": "Optional avatar URL or Base64 data URI." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp." }
+      },
+      "required": ["ownerUid", "lookupType", "displayName", "username", "createdAt", "updatedAt"]
+    },
+    "SavedContact": {
+      "title": "SavedContact",
+      "description": "A verified contact saved in a user's personal contacts list.",
+      "type": "object",
+      "properties": {
+        "contactUid": { "type": "string", "description": "Registered MJ Chatty UID of the contact." },
+        "savedName": { "type": "string", "description": "Custom contact label saved by the owner (1-60 chars)." },
+        "contactUsername": { "type": "string", "description": "Contact's verified username (0-24 chars)." },
+        "contactPhone": { "type": "string", "description": "Optional phone number typed by the owner (0-20 chars)." },
+        "avatarData": { "type": "string", "description": "Optional cached avatar data." },
+        "registered": { "type": "boolean", "description": "Whether verified as registered on MJ Chatty." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp." }
+      },
+      "required": ["contactUid", "savedName", "contactUsername", "registered", "createdAt", "updatedAt"]
+    },
+    "ChatThread": {
+      "title": "ChatThread",
+      "description": "Direct or group conversation thread scoped to memberUids with pinning, custom title, typing indicator, and read state metadata.",
+      "type": "object",
+      "properties": {
+        "memberUids": { "type": "array", "description": "Bounded list of participant UIDs (1-20)." },
+        "chatType": { "type": "string", "enum": ["direct", "group"], "description": "Conversation type." },
+        "title": { "type": "string", "description": "Optional custom thread title (0-60 chars)." },
+        "pinnedByUids": { "type": "array", "description": "Optional list of participant UIDs who pinned this chat." },
+        "hiddenByUids": { "type": "array", "description": "Optional list of participant UIDs who deleted/hid this chat from their list." },
+        "lockedByUids": { "type": "array", "description": "Optional list of participant UIDs who locked this chat behind their secret code." },
+        "pinnedMessageId": { "type": "string", "description": "Optional ID of the currently pinned message in this chat." },
+        "pinnedMessagePreview": { "type": "string", "description": "Optional preview text of the currently pinned message." },
+        "lastSenderId": { "type": "string", "description": "UID of the sender of the most recent message." },
+        "lastMessagePreview": { "type": "string", "description": "Preview snippet of the latest message." },
+        "lastMessageType": { "type": "string", "enum": ["text", "image", "voice"], "description": "Media type of the latest message." },
+        "lastMessageStatus": { "type": "string", "enum": ["sent", "delivered", "read"], "description": "Delivery/read status of the latest message." },
+        "lastMessageAt": { "type": "string", "format": "date-time", "description": "Timestamp of the latest message." },
+        "typingUid": { "type": "string", "description": "UID of the participant currently typing, or empty string." },
+        "typingUpdatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp of the last typing update." },
+        "unreadByUid": { "type": "string", "description": "UID of the recipient who has unread messages, or empty string." },
+        "unreadCount": { "type": "integer", "description": "Unread message count for unreadByUid." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Thread creation server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Thread update server timestamp." }
+      },
+      "required": [
+        "memberUids",
+        "chatType",
+        "lastSenderId",
+        "lastMessagePreview",
+        "lastMessageType",
+        "lastMessageStatus",
+        "lastMessageAt",
+        "typingUid",
+        "unreadByUid",
+        "unreadCount",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Individual real-time text, image, or voice message inside a chat thread with edit, pin, and forward metadata.",
+      "type": "object",
+      "properties": {
+        "chatId": { "type": "string", "description": "Parent chat document ID." },
+        "senderId": { "type": "string", "description": "UID of the message sender." },
+        "memberUids": { "type": "array", "description": "Denormalized participant UIDs for zero-lookup security evaluation." },
+        "messageType": { "type": "string", "enum": ["text", "image", "voice"], "description": "Message payload type." },
+        "text": { "type": "string", "description": "Message text or image caption (0-2000 chars)." },
+        "imageData": { "type": "string", "description": "Optional compressed Base64 JPEG image string." },
+        "voiceData": { "type": "string", "description": "Optional compressed Base64 audio clip string." },
+        "voiceDurationMs": { "type": "integer", "description": "Optional voice note duration in milliseconds." },
+        "status": { "type": "string", "enum": ["sent", "delivered", "read"], "description": "Delivery and read receipt status." },
+        "reaction": { "type": "string", "description": "Optional emoji reaction string." },
+        "edited": { "type": "boolean", "description": "Optional flag indicating the sender edited this message." },
+        "editedAt": { "type": "string", "format": "date-time", "description": "Optional timestamp when the message was last edited." },
+        "pinned": { "type": "boolean", "description": "Optional flag indicating the message is pinned in the chat." },
+        "forwarded": { "type": "boolean", "description": "Optional flag indicating the message was forwarded from another chat." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Message creation server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Message update server timestamp." }
+      },
+      "required": [
+        "chatId",
+        "senderId",
+        "memberUids",
+        "messageType",
+        "text",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CallSession": {
+      "title": "CallSession",
+      "description": "Direct WebRTC peer-to-peer audio and video call signaling document and call history log entry.",
+      "type": "object",
+      "properties": {
+        "chatId": { "type": "string", "description": "Associated direct chat ID." },
+        "callerUid": { "type": "string", "description": "UID of the user who initiated the call." },
+        "calleeUid": { "type": "string", "description": "UID of the call recipient." },
+        "callerName": { "type": "string", "description": "Display name of the caller." },
+        "calleeName": { "type": "string", "description": "Display name of the callee." },
+        "callerAvatar": { "type": "string", "description": "Optional avatar URL or Base64 data URI of caller." },
+        "calleeAvatar": { "type": "string", "description": "Optional avatar URL or Base64 data URI of callee." },
+        "memberUids": { "type": "array", "description": "Two-element participant UID list for scoped queries." },
+        "callType": { "type": "string", "enum": ["audio", "video"], "description": "Media type of the WebRTC call." },
+        "status": { "type": "string", "enum": ["ringing", "answered", "ended", "declined", "missed"], "description": "Current lifecycle state of the call." },
+        "offerSdp": { "type": "string", "description": "Optional WebRTC SDP offer generated by the caller." },
+        "answerSdp": { "type": "string", "description": "Optional WebRTC SDP answer generated by the callee." },
+        "durationSeconds": { "type": "integer", "description": "Optional total connected call duration in seconds." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Call initiation server timestamp." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Call last update server timestamp." }
+      },
+      "required": [
+        "chatId",
+        "callerUid",
+        "calleeUid",
+        "callerName",
+        "calleeName",
+        "memberUids",
+        "callType",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "IceCandidateRecord": {
+      "title": "IceCandidateRecord",
+      "description": "Trickle-ICE candidate exchanged between WebRTC audio call participants.",
+      "type": "object",
+      "properties": {
+        "senderUid": { "type": "string", "description": "UID of the peer who gathered this ICE candidate." },
+        "memberUids": { "type": "array", "description": "Denormalized participant UIDs for zero-lookup security evaluation." },
+        "sdpMid": { "type": "string", "description": "Media stream identification tag." },
+        "sdpMLineIndex": { "type": "integer", "description": "Zero-based index of the m-line in the SDP." },
+        "sdp": { "type": "string", "description": "Candidate attribute string." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp when candidate was published." }
+      },
+      "required": ["senderUid", "memberUids", "sdpMid", "sdpMLineIndex", "sdp", "createdAt"]
+    },
+    "PcLinkSession": {
+      "title": "PcLinkSession",
+      "description": "Owner-scoped web browser linking session with cryptographic token, verification code, copyable link URL, and live link status.",
+      "type": "object",
+      "properties": {
+        "ownerUid": { "type": "string", "description": "Firebase Auth UID of the user who generated this PC link." },
+        "deviceLabel": { "type": "string", "description": "Human-readable PC browser or device label (1-40 chars)." },
+        "pairingCode": { "type": "string", "description": "Short verification code shown alongside the link URL (4-16 chars)." },
+        "linkToken": { "type": "string", "description": "Cryptographic pairing token embedded in the copyable browser URL (12-64 chars)." },
+        "linkUrl": { "type": "string", "description": "Full HTTPS URL that can be copied into a PC web browser to link the app (10-500 chars)." },
+        "status": { "type": "string", "enum": ["pending", "linked", "revoked"], "description": "Current status of this PC linking session." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp (FieldValue.serverTimestamp())." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp (FieldValue.serverTimestamp())." }
+      },
+      "required": ["ownerUid", "deviceLabel", "pairingCode", "linkToken", "linkUrl", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserAccount" },
+      "description": "Private user account profile containing PII (phoneNumber), accessible only by owner."
+    },
+    "/users/{userId}/contacts/{contactId}": {
+      "schema": { "$ref": "#/entities/SavedContact" },
+      "description": "User-scoped saved contacts subcollection."
+    },
+    "/users/{userId}/pcLinks/{linkId}": {
+      "schema": { "$ref": "#/entities/PcLinkSession" },
+      "description": "User-scoped PC web browser linking sessions and tokens."
+    },
+    "/publicProfiles/{profileUid}": {
+      "schema": { "$ref": "#/entities/PublicProfile" },
+      "description": "Non-PII public chat presence and avatar profiles indexed by UID (get-only, no list)."
+    },
+    "/directory/{lookupId}": {
+      "schema": { "$ref": "#/entities/DirectoryEntry" },
+      "description": "Non-PII lookup index by u_<username> or p_<sha256(phone)> for live registered contact verification (get-only, no list)."
+    },
+    "/chats/{chatId}": {
+      "schema": { "$ref": "#/entities/ChatThread" },
+      "description": "Direct and group chat threads scoped to memberUids."
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Messages subcollection with denormalized memberUids for fast secure real-time listeners."
+    },
+    "/calls/{callId}": {
+      "schema": { "$ref": "#/entities/CallSession" },
+      "description": "WebRTC direct audio call sessions and history scoped to memberUids."
+    },
+    "/calls/{callId}/iceCandidates/{candidateId}": {
+      "schema": { "$ref": "#/entities/IceCandidateRecord" },
+      "description": "WebRTC ICE candidates subcollection with denormalized memberUids."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "MJ Chatty",
+  "description": "A modern Material Design 3 neon-themed messaging app with real-time chat, registered contact verification, voice messages, image sharing, and profile customization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
